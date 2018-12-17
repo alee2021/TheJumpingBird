@@ -1,4 +1,4 @@
-# this file was created by Chris Cozort
+# this file was created by Allan Lee
 # Sources: goo.gl/2KMivS 
 # now available in github
 
@@ -10,21 +10,29 @@ Game ideas:
 Bottom Closes on player
 Random Spikes on Platforms
 Booster That Kills You (Left, Right, Down)
+Death Sound
+New Graphics
 
 Cosmetics:
+
+Boosting Clouds(Possibilities: Advantage to get up higher, Disadvantage to boost you up to a booster)
 Jumping Bird
+Down Booster
+Side Booster
 
 Bugs:
 
-
+Boosters don't work if two are activated at the same time (rarely happens)
 
 Gameplay Fixes:
 
 The Down Booster was not working, now it works.
 
 Features:
-Boosters That Go The Wrong Way
-Auto-Scrolling Screen That Kills If Player At Bottom
+  
+Boosters That Go The Wrong Way (Down, Left, Right)
+Auto-Scrolling Screen That Kills The Platform If At Bottom
+Happy Music 
 
 '''
 import pygame as pg
@@ -97,6 +105,8 @@ class Game:
         self.player = Player(self)
         # add mobs
         self.mobs = pg.sprite.Group()
+        # add spikes
+        self.spikes = pg.sprite.Group()
         # no longer needed after passing self.groups in Sprites library file
         # self.all_sprites.add(self.player)
         # instantiate new platform 
@@ -137,6 +147,7 @@ class Game:
             Mob(self)
         # check for mob collisions
         mob_hits = pg.sprite.spritecollide(self.player, self.mobs, False)
+        spikes_hits = pg.sprite.spritecollide(self.player, self.spikes, False)
         if mob_hits:
             ''' I created below as an added feature:
             I wanted to create an option to jump on the enemies without getting stuck
@@ -145,10 +156,24 @@ class Game:
                 print("hit top")
                 print("player is " + str(self.player.pos.y))
                 print("mob is " + str(mob_hits[0].rect_top))
-                self.player.vel.y = -BOOST_POWER
+                self.player.vel.y = -CLOUD_POWER
             else:
                 print("player is " + str(self.player.pos.y))
                 print("mob is " + str(mob_hits[0].rect_top))
+                self.playing = False
+
+        if spikes_hits:
+            ''' I created below as an added feature:
+            I wanted to create an option to jump on the enemies without getting stuck
+            '''
+            if self.player.pos.y - 35 < spikes_hits[0].rect_top:
+                print("hit top")
+                print("player is " + str(self.player.pos.y))
+                print("mob is " + str(spikes_hits[0].rect_top))
+                self.playing = False
+            else:
+                print("player is " + str(self.player.pos.y))
+                print("mob is " + str(spikes_hits[0].rect_top))
                 self.playing = False
 
         # check to see if player can jump - if falling
@@ -184,22 +209,25 @@ class Game:
         # if player hits a power up
         pow_hits = pg.sprite.spritecollide(self.player, self.powerups, True)
         boom_hits = pg.sprite.spritecollide(self.player, self.powerups, True)
+        # down booster
         for pow in pow_hits:
             if pow.type == 'boom':
                 self.boom_sound.play()
-                self.player.vel.y = BOOST_POWER
+                self.player.vel.y = BOOM_POWER
                 self.player.jumping = False
+        # side booster
         for pow in pow_hits:
             if pow.type == 'boost':
                 self.boom_sound.play()
                 self.player.vel.x = -BOOST_POWER
                 self.player.jumping = False
+        # side booster
         for pow in pow_hits:
             if pow.type == 'boost':
                 self.boom_sound.play()
                 self.player.vel.x = BOOST_POWER
                 self.player.jumping = False
-        # continuous scroll - Credits: Nate Morgan
+        # continuous scroll up on screen - Credits: Nate Morgan
         for plat in self.platforms:
             plat.rect.y += 1
             if plat.rect.top >= HEIGHT:
@@ -207,17 +235,21 @@ class Game:
                 self.score += 10        
 
         # Die!
+        # when at bottom, plat is deleted
         if self.player.rect.bottom >= HEIGHT:
             for sprite in self.all_sprites:
                 sprite.rect.y -= max(self.player.vel.y, 10)
                 if sprite.rect.bottom < 0:
                     sprite.kill()
-                    '''
-                    Tried to add death sound, still working on it
-                    self.snd_dir = path.join(self.dir, 'snd')
-                    # dying sound from http://soundbible.com/1948-Slap.html
-                    self.die_sound = [pg.mixer.Sound(path.join(self.snd_dir, 'Slap.wav'))]
-                    ''' 
+        # Death Sound
+        '''
+        Death Sound broken
+        if self.player.kill():
+            # Tried to add death sound
+            self.snd_dir = path.join(self.dir, 'snd')
+            # dying sound from http://soundbible.com/1948-Slap.html
+            self.die_sound = [pg.mixer.Sound(path.join(self.snd_dir, 'Slap.wav'))]
+        '''
         if len(self.platforms) == 0:
             self.playing = False
         # generate new random platforms
@@ -245,6 +277,7 @@ class Game:
                         # cuts the jump short if the space bar is released
                         self.player.jump_cut()
     def draw(self):
+        # background color
         self.screen.fill(DARK_RED)
         self.all_sprites.draw(self.screen)
         # not needed now that we're using LayeredUpdates

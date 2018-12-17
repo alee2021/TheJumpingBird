@@ -23,11 +23,12 @@ PLAYER_FRICTION = -0.12
 PLAYER_GRAV = 0.8
 PLAYER_JUMP = 23
 # game settings
-BOOST_POWER = 60
-BOOM_POWER = -60
+CLOUD_POWER = 85
+BOOST_POWER = 100
+BOOM_POWER = 70
 POW_SPAWN_PCT = 7
 BOOM_SPAWN_PCT = 7
-MOB_FREQ = 6000
+MOB_FREQ = 70000
 # layers - adds order on what is in front of one another
 PLAYER_LAYER = 2
 PLATFORM_LAYER = 1
@@ -35,6 +36,7 @@ CLOUD_LAYER = 0
 POW_LAYER = 1
 BOOM_LAYER = 1
 MOB_LAYER = 2
+SPIKES_LAYER = 2
 
 # platform settings
 ''' old platforms from drawing rectangles'''
